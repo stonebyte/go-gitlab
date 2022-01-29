@@ -231,6 +231,8 @@ type ListIssuesOptions struct {
 	UpdatedBefore      *time.Time `url:"updated_before,omitempty" json:"updated_before,omitempty"`
 	Confidential       *bool      `url:"confidential,omitempty" json:"confidential,omitempty"`
 	IssueType          *string    `url:"issue_type,omitempty" json:"issue_type,omitempty"`
+	IterationID        *int       `url:"iteration_id,omitempty" json:"iteration_id,omitempty"`
+	IterationTitle     *string    `url:"iteration_title,omitempty" json:"iteration_title,omitempty"`
 }
 
 // ListIssues gets all issues created by authenticated user. This function
@@ -282,6 +284,8 @@ type ListGroupIssuesOptions struct {
 	UpdatedAfter       *time.Time `url:"updated_after,omitempty" json:"updated_after,omitempty"`
 	UpdatedBefore      *time.Time `url:"updated_before,omitempty" json:"updated_before,omitempty"`
 	IssueType          *string    `url:"issue_type,omitempty" json:"issue_type,omitempty"`
+	IterationID        *int       `url:"iteration_id,omitempty" json:"iteration_id,omitempty"`
+	IterationTitle     *string    `url:"iteration_title,omitempty" json:"iteration_title,omitempty"`
 }
 
 // ListGroupIssues gets a list of group issues. This function accepts
@@ -340,6 +344,8 @@ type ListProjectIssuesOptions struct {
 	UpdatedBefore      *time.Time `url:"updated_before,omitempty" json:"updated_before,omitempty"`
 	Confidential       *bool      `url:"confidential,omitempty" json:"confidential,omitempty"`
 	IssueType          *string    `url:"issue_type,omitempty" json:"issue_type,omitempty"`
+	IterationID        *int       `url:"iteration_id,omitempty" json:"iteration_id,omitempty"`
+	IterationTitle     *string    `url:"iteration_title,omitempty" json:"iteration_title,omitempty"`
 }
 
 // ListProjectIssues gets a list of project issues. This function accepts
