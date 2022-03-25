@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"reflect"
 	"testing"
 	"time"
 
@@ -247,6 +248,106 @@ func TestUnblockUser_UnknownError(t *testing.T) {
 	err := client.Users.UnblockUser(1)
 	if err.Error() != want {
 		t.Errorf("Users.UnblockUser error.\nExpected: %s\n\tGot: %v", want, err)
+	}
+}
+
+func TestBanUser(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	path := fmt.Sprintf("/%susers/1/block", apiVersionPath)
+	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusCreated)
+	})
+
+	err := client.Users.BlockUser(1)
+	if err != nil {
+		t.Errorf("Users.BlockUser returned error: %v", err)
+	}
+}
+
+func TestBanUser_UserNotFound(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	path := fmt.Sprintf("/%susers/1/ban", apiVersionPath)
+	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusNotFound)
+	})
+
+	err := client.Users.BanUser(1)
+	if !errors.Is(err, ErrUserNotFound) {
+		t.Errorf("Users.BanUser error.\nExpected: %+v\nGot: %+v", ErrUserNotFound, err)
+	}
+}
+
+func TestBanUser_UnknownError(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	path := fmt.Sprintf("/%susers/1/ban", apiVersionPath)
+	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusTeapot)
+	})
+
+	want := fmt.Sprintf("Received unexpected result code: %d", http.StatusTeapot)
+
+	err := client.Users.BanUser(1)
+	if err.Error() != want {
+		t.Errorf("Users.BanUSer error.\nExpected: %s\nGot: %v", want, err)
+	}
+}
+
+func TestUnbanUser(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	path := fmt.Sprintf("/%susers/1/unban", apiVersionPath)
+	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusCreated)
+	})
+
+	err := client.Users.UnbanUser(1)
+	if err != nil {
+		t.Errorf("Users.UnbanUser returned error: %v", err)
+	}
+}
+
+func TestUnbanUser_UserNotFound(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	path := fmt.Sprintf("/%susers/1/unban", apiVersionPath)
+	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusNotFound)
+	})
+
+	err := client.Users.UnbanUser(1)
+	if !errors.Is(err, ErrUserNotFound) {
+		t.Errorf("Users.UnbanUser error.\nExpected: %v\nGot: %v", ErrUserNotFound, err)
+	}
+}
+
+func TestUnbanUser_UnknownError(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	path := fmt.Sprintf("/%susers/1/unban", apiVersionPath)
+	mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusTeapot)
+	})
+
+	want := fmt.Sprintf("Received unexpected result code: %d", http.StatusTeapot)
+
+	err := client.Users.UnbanUser(1)
+	if err.Error() != want {
+		t.Errorf("Users.UnbanUser error.\nExpected: %s\n\tGot: %v", want, err)
 	}
 }
 
@@ -511,4 +612,39 @@ func TestGetMemberships(t *testing.T) {
 
 	want := []*UserMembership{{SourceID: 1, SourceName: "Project one", SourceType: "Project", AccessLevel: 20}, {SourceID: 3, SourceName: "Group three", SourceType: "Namespace", AccessLevel: 20}}
 	assert.Equal(t, want, memberships)
+}
+
+func TestGetSingleSSHKeyForUser(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	mux.HandleFunc("/api/v4/users/1/keys/1", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		fmt.Fprint(w, `
+		{
+			"id": 1,
+			"title": "Public key",
+			"key": "ssh-rsa AAAA...",
+			"created_at": "2014-08-01T14:47:39.080Z"
+		  }
+`)
+	})
+
+	sshKey, _, err := client.Users.GetSSHKeyForUser(1, 1)
+	if err != nil {
+		t.Errorf("Users.GetSSHKeyForUser returned an error: %v", err)
+	}
+
+	wantCreatedAt := time.Date(2014, 8, 1, 14, 47, 39, 80000000, time.UTC)
+
+	want := &SSHKey{
+		ID:        1,
+		Title:     "Public key",
+		Key:       "ssh-rsa AAAA...",
+		CreatedAt: &wantCreatedAt,
+	}
+
+	if !reflect.DeepEqual(want, sshKey) {
+		t.Errorf("Users.GetSSHKeyForUser returned %+v, want %+v", sshKey, want)
+	}
 }

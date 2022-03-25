@@ -207,6 +207,11 @@ func TestParseMergeRequestCommentHook(t *testing.T) {
 	if event.MergeRequest.ID != 7 {
 		t.Errorf("MergeRequest ID is %v, want %v", event.MergeRequest.ID, 7)
 	}
+
+	expectedTitle := "Merge branch 'another-branch' into 'master'"
+	if event.MergeRequest.LastCommit.Title != expectedTitle {
+		t.Errorf("MergeRequest Title is %v, want %v", event.MergeRequest.Title, expectedTitle)
+	}
 }
 
 func TestParseMergeRequestHook(t *testing.T) {
@@ -384,6 +389,24 @@ func TestParseSnippetCommentHook(t *testing.T) {
 
 	if event.Snippet.Title != "test" {
 		t.Errorf("Snippet title is %v, want %v", event.Snippet.Title, "test")
+	}
+}
+
+func TestParseSubGroupHook(t *testing.T) {
+	raw := loadFixture("testdata/webhooks/subgroup.json")
+
+	parsedEvent, err := ParseWebhook("Subgroup Hook", raw)
+	if err != nil {
+		t.Errorf("Error parsing subgroup hook: %s", err)
+	}
+
+	event, ok := parsedEvent.(*SubGroupEvent)
+	if !ok {
+		t.Errorf("Expected SubGroupEvent, but parsing produced %T", parsedEvent)
+	}
+
+	if event.EventName != "subgroup_create" {
+		t.Errorf("EventName is %v, want %v", event.EventName, "subgroup_create")
 	}
 }
 
