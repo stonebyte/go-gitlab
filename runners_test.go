@@ -256,8 +256,9 @@ func TestRegisterNewRunner(t *testing.T) {
 	}
 
 	want := &Runner{
-		ID:    12345,
-		Token: "6337ff461c94fd3fa32ba3b1ff4125",
+		ID:             12345,
+		Token:          "6337ff461c94fd3fa32ba3b1ff4125",
+		TokenExpiresAt: Time(time.Date(2016, time.January, 25, 16, 39, 48, 166000000, time.UTC)),
 	}
 	if !reflect.DeepEqual(want, runner) {
 		t.Errorf("Runners.RegisterNewRunner returned %+v, want %+v", runner, want)
@@ -286,7 +287,8 @@ func TestRegisterNewRunnerInfo(t *testing.T) {
 			"name": "some name",
 			"online": true,
 			"status": "online",
-			"token": "1111122222333333444444"
+			"token": "1111122222333333444444",
+			"token_expires_at": "2016-01-25T16:39:48.166Z"
 		  }`)
 	})
 
@@ -311,14 +313,15 @@ func TestRegisterNewRunnerInfo(t *testing.T) {
 	}
 
 	want := &Runner{
-		ID:          53,
-		Description: "some description",
-		Active:      true,
-		IPAddress:   "1.2.3.4",
-		Name:        "some name",
-		Online:      true,
-		Status:      "online",
-		Token:       "1111122222333333444444",
+		ID:             53,
+		Description:    "some description",
+		Active:         true,
+		IPAddress:      "1.2.3.4",
+		Name:           "some name",
+		Online:         true,
+		Status:         "online",
+		Token:          "1111122222333333444444",
+		TokenExpiresAt: Time(time.Date(2016, time.January, 25, 16, 39, 48, 166000000, time.UTC)),
 	}
 	if !reflect.DeepEqual(want, runner) {
 		t.Errorf("Runners.RegisterNewRunner returned %+v, want %+v", runner, want)
@@ -393,5 +396,133 @@ func TestVerifyRegisteredRunner(t *testing.T) {
 	want := 200
 	if !reflect.DeepEqual(want, resp.StatusCode) {
 		t.Errorf("Runners.VerifyRegisteredRunner returned returned status code  %+v, want %+v", resp.StatusCode, want)
+	}
+}
+
+func TestResetInstanceRunnerRegistrationToken(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	mux.HandleFunc("/api/v4/runners/reset_registration_token", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{
+			"token": "6337ff461c94fd3fa32ba3b1ff4125",
+			"token_expires_at": "2016-01-25T16:39:48.166Z"
+		}`)
+	})
+
+	token, resp, err := client.Runners.ResetInstanceRunnerRegistrationToken(nil)
+	if err != nil {
+		t.Fatalf("Runners.ResetInstanceRunnerRegistrationToken returns an error: %v", err)
+	}
+
+	want := &RunnerRegistrationToken{
+		Token:          String("6337ff461c94fd3fa32ba3b1ff4125"),
+		TokenExpiresAt: Time(time.Date(2016, time.January, 25, 16, 39, 48, 166000000, time.UTC)),
+	}
+	if !reflect.DeepEqual(want, token) {
+		t.Errorf("Runners.ResetInstanceRunnerRegistrationToken returned %+v, want %+v", token, want)
+	}
+
+	wantCode := 201
+	if !reflect.DeepEqual(wantCode, resp.StatusCode) {
+		t.Errorf("Runners.ResetInstanceRunnerRegistrationToken returned returned status code  %+v, want %+v", resp.StatusCode, wantCode)
+	}
+}
+
+func TestResetGroupRunnerRegistrationToken(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	mux.HandleFunc("/api/v4/groups/foobar/runners/reset_registration_token", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{
+			"token": "6337ff461c94fd3fa32ba3b1ff4125",
+			"token_expires_at": "2016-01-25T16:39:48.166Z"
+		}`)
+	})
+
+	token, resp, err := client.Runners.ResetGroupRunnerRegistrationToken("foobar", nil)
+	if err != nil {
+		t.Fatalf("Runners.ResetGroupRunnerRegistrationToken returns an error: %v", err)
+	}
+
+	want := &RunnerRegistrationToken{
+		Token:          String("6337ff461c94fd3fa32ba3b1ff4125"),
+		TokenExpiresAt: Time(time.Date(2016, time.January, 25, 16, 39, 48, 166000000, time.UTC)),
+	}
+	if !reflect.DeepEqual(want, token) {
+		t.Errorf("Runners.ResetGroupRunnerRegistrationToken returned %+v, want %+v", token, want)
+	}
+
+	wantCode := 201
+	if !reflect.DeepEqual(wantCode, resp.StatusCode) {
+		t.Errorf("Runners.ResetGroupRunnerRegistrationToken returned returned status code  %+v, want %+v", resp.StatusCode, wantCode)
+	}
+}
+
+func TestResetProjectRunnerRegistrationToken(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	mux.HandleFunc("/api/v4/projects/9/runners/reset_registration_token", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{
+			"token": "6337ff461c94fd3fa32ba3b1ff4125",
+			"token_expires_at": "2016-01-25T16:39:48.166Z"
+		}`)
+	})
+
+	token, resp, err := client.Runners.ResetProjectRunnerRegistrationToken("9", nil)
+	if err != nil {
+		t.Fatalf("Runners.ResetProjectRunnerRegistrationToken returns an error: %v", err)
+	}
+
+	want := &RunnerRegistrationToken{
+		Token:          String("6337ff461c94fd3fa32ba3b1ff4125"),
+		TokenExpiresAt: Time(time.Date(2016, time.January, 25, 16, 39, 48, 166000000, time.UTC)),
+	}
+	if !reflect.DeepEqual(want, token) {
+		t.Errorf("Runners.ResetProjectRunnerRegistrationToken returned %+v, want %+v", token, want)
+	}
+
+	wantCode := 201
+	if !reflect.DeepEqual(wantCode, resp.StatusCode) {
+		t.Errorf("Runners.ResetProjectRunnerRegistrationToken returned returned status code  %+v, want %+v", resp.StatusCode, wantCode)
+	}
+}
+
+func TestResetRunnerAuthenticationToken(t *testing.T) {
+	mux, server, client := setup(t)
+	defer teardown(server)
+
+	mux.HandleFunc("/api/v4/runners/42/reset_authentication_token", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{
+			"token": "6337ff461c94fd3fa32ba3b1ff4125",
+			"token_expires_at": "2016-01-25T16:39:48.166Z"
+		}`)
+	})
+
+	token, resp, err := client.Runners.ResetRunnerAuthenticationToken(42, nil)
+	if err != nil {
+		t.Fatalf("Runners.ResetRunnerAuthenticationToken returns an error: %v", err)
+	}
+
+	want := &RunnerAuthenticationToken{
+		Token:          String("6337ff461c94fd3fa32ba3b1ff4125"),
+		TokenExpiresAt: Time(time.Date(2016, time.January, 25, 16, 39, 48, 166000000, time.UTC)),
+	}
+	if !reflect.DeepEqual(want, token) {
+		t.Errorf("Runners.ResetRunnerAuthenticationToken returned %+v, want %+v", token, want)
+	}
+
+	wantCode := 201
+	if !reflect.DeepEqual(wantCode, resp.StatusCode) {
+		t.Errorf("Runners.ResetRunnerAuthenticationToken returned returned status code  %+v, want %+v", resp.StatusCode, wantCode)
 	}
 }

@@ -117,7 +117,6 @@ const (
         "committer_name": "John SMITH",
         "committer_email": "john.smith@example.com",
         "committed_date": "2018-03-21T14:41:00.000Z",
-        "trailers": {},
         "web_url": "https://gitlab.example.com/awesome/packages/common/-/commit/6c016b801a88f4bd31f927fc045b5c746a6f823e"
       },
       "pipeline": {
@@ -170,7 +169,8 @@ const (
 	// exampleRegisterNewRunner provides fixture for Runners tests.
 	exampleRegisterNewRunner = `{
 		"id": 12345,
-		"token": "6337ff461c94fd3fa32ba3b1ff4125"
+		"token": "6337ff461c94fd3fa32ba3b1ff4125",
+		"token_expires_at": "2016-01-25T16:39:48.166Z"
 	}`
 
 	// exampleReleaseLink provides fixture for Release Links tests.

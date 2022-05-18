@@ -1,5 +1,5 @@
 {
-  "id": 1876,
+  "id": 1,
   "name": "token 10",
   "revoked": false,
   "created_at": "2021-03-09T21:11:47.271Z",
@@ -7,6 +7,5 @@
   "user_id": 2453,
   "active": true,
   "expires_at": null,
-  "token": "2UsevZE1x1ZdFZW4MNzH",
   "access_level": 40
 }

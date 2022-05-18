@@ -55,6 +55,10 @@ func TestBuildEventUnmarshal(t *testing.T) {
 	if event.User.Name != expectedName {
 		t.Errorf("Username is %s, want %s", event.User.Name, expectedName)
 	}
+
+	if event.BuildCreatedAt != "2021-02-23T02:41:37.886Z" {
+		t.Errorf("BuildCreatedAt is %s, want %s", event.User.Name, expectedName)
+	}
 }
 
 func TestDeploymentEventUnmarshal(t *testing.T) {
@@ -441,8 +445,8 @@ func TestSubGroupEventUnmarshal(t *testing.T) {
 		t.Errorf("SubGroup Event is null")
 	}
 
-	if event.Name != "Subgroup 1" {
-		t.Errorf("Name is %v, want %v", event.Name, "Subgroup 1")
+	if event.Name != "SubGroup 1" {
+		t.Errorf("Name is %v, want %v", event.Name, "SubGroup 1")
 	}
 
 	if event.GroupID != 2 {

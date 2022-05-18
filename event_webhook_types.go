@@ -37,6 +37,7 @@ type BuildEvent struct {
 	BuildName         string     `json:"build_name"`
 	BuildStage        string     `json:"build_stage"`
 	BuildStatus       string     `json:"build_status"`
+	BuildCreatedAt    string     `json:"build_created_at"`
 	BuildStartedAt    string     `json:"build_started_at"`
 	BuildFinishedAt   string     `json:"build_finished_at"`
 	BuildDuration     float64    `json:"build_duration"`
@@ -273,6 +274,10 @@ type IssueEvent struct {
 	Assignees *[]EventUser `json:"assignees"`
 	Labels    []Label      `json:"labels"`
 	Changes   struct {
+		Assignees struct {
+			Previous []*EventUser `json:"previous"`
+			Current  []*EventUser `json:"current"`
+		} `json:"assignees"`
 		Description struct {
 			Previous string `json:"previous"`
 			Current  string `json:"current"`
@@ -870,20 +875,20 @@ type SnippetCommentEvent struct {
 		URL          string `json:"url"`
 	} `json:"object_attributes"`
 	Snippet *struct {
-		ID                 int        `json:"id"`
-		Title              string     `json:"title"`
-		Content            string     `json:"content"`
-		AuthorID           int        `json:"author_id"`
-		ProjectID          int        `json:"project_id"`
-		CreatedAt          string     `json:"created_at"`
-		UpdatedAt          string     `json:"updated_at"`
-		Filename           string     `json:"file_name"`
-		ExpiresAt          string     `json:"expires_at"`
-		Type               string     `json:"type"`
-		VisibilityLevel    int        `json:"visibility_level"`
-		Description        string     `json:"description"`
-		Secret             bool       `json:"secret"`
-		RepositoryReadOnly bool       `json:"repository_read_only"`
+		ID                 int    `json:"id"`
+		Title              string `json:"title"`
+		Content            string `json:"content"`
+		AuthorID           int    `json:"author_id"`
+		ProjectID          int    `json:"project_id"`
+		CreatedAt          string `json:"created_at"`
+		UpdatedAt          string `json:"updated_at"`
+		Filename           string `json:"file_name"`
+		ExpiresAt          string `json:"expires_at"`
+		Type               string `json:"type"`
+		VisibilityLevel    int    `json:"visibility_level"`
+		Description        string `json:"description"`
+		Secret             bool   `json:"secret"`
+		RepositoryReadOnly bool   `json:"repository_read_only"`
 	} `json:"snippet"`
 }
 
